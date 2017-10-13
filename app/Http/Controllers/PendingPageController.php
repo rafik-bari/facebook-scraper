@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\FetchPageDetails;
+use App\Page;
 use App\PendingPage;
 use Illuminate\Http\Request;
 
 class PendingPageController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
 
     /**
      * Display a listing of the resource.
@@ -38,16 +43,17 @@ class PendingPageController extends Controller
     public function store(Request $request)
     {
         // push all page ids to job queue
-        $pendingIds = unserialize($request->get('page_ids'));
+        $pageId = $request->get('page_ids');
 
-        foreach ($pendingIds as $pageId) {
+        if ($pageId && !Page::find($pageId)) {
             $pendingPage = new PendingPage();
             $pendingPage->page_id = $pageId;
             if ($pendingPage->save()) {
                 FetchPageDetails::dispatch($pendingPage);
+                return \Response::json($pendingPage->id);
             }
-
         }
+
     }
 
     /**

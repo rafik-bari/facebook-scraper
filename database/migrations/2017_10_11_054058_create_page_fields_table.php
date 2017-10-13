@@ -18,6 +18,7 @@ class CreatePageFieldsTable extends Migration
             $table->string('name')->nullable();
             $table->text('description')->nullable();
             $table->string('type')->nullable();
+            $table->boolean('enabled')->default(false);
             $table->timestamps();
         });
     }

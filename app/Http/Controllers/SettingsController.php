@@ -2,30 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Page;
+use App\PageField;
 use Illuminate\Http\Request;
 
-class PageController extends Controller
+class SettingsController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
     }
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-
-        $pages = Page::all();
-        $result = [
-            'ids' => $pages->pluck('id'),
-            'pages' => $pages
-        ];
-        return \Response::json($result);
+        $fields = PageField::all();
+        return view('settings', compact('fields'));
     }
 
     /**
@@ -57,7 +51,7 @@ class PageController extends Controller
      */
     public function show($id)
     {
-        //
+
     }
 
     /**

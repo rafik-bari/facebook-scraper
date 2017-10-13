@@ -12,14 +12,18 @@
 */
 
 Route::get('/', function () {
-    return view('auth.login');
+    return Redirect::to('/login');
 });
 
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::resource('keyword','KeywordController');
 Route::resource('page', 'PageController');
 Route::resource('pendingPage', 'PendingPageController');
+Route::resource('settings', 'SettingsController');
+Route::resource('fields', 'PageFieldController');
+
 
 
 Route::get('/test', function () {
@@ -30,32 +34,60 @@ Route::get('/test', function () {
         'app_id' => $app_id,
         'app_secret' => $app_secret,
         'default_graph_version' => 'v2.10',
-
     ]);
 
 
     $access_token = $app_id . '|' . $app_secret;
+    $fields = \App\PageField::where('enabled', '1')->get(['name'])->implode('name', ',');
+    $pages_ids = \App\PendingPage::all();
+    $batch = [];
+    $fb->setDefaultAccessToken($access_token);
+
+    foreach ($pages_ids as $page) {
+       // $batch[] = $fb->request('GET',"/$page->page_id?fields=$fields");
+        $batch[] = $fb->request('GET',"/search?type=page&q=a&fields=$fields&limit=5000");
+        $batch[] = $fb->request('GET',"/search?type=page&q=b&fields=$fields&limit=5000");
+        $batch[] = $fb->request('GET',"/search?type=page&q=c&fields=$fields&limit=5000");
+        $batch[] = $fb->request('GET',"/search?type=page&q=d&fields=$fields&limit=5000");
+        $batch[] = $fb->request('GET',"/search?type=page&q=e&fields=$fields&limit=5000");
+        $batch[] = $fb->request('GET',"/search?type=page&q=f&fields=$fields&limit=5000");
+    }
+
+
     try {
-        // Get the \Facebook\GraphNodes\GraphUser object for the current user.
-        // If you provided a 'default_access_token', the '{access-token}' is optional.
-        $response = $fb->get('/1377316249228679?metadata=1', $access_token);
-    } catch (\Facebook\Exceptions\FacebookResponseException $e) {
+        $responses = $fb->sendBatchRequest($batch);
+    } catch(Facebook\Exceptions\FacebookResponseException $e) {
         // When Graph returns an error
         echo 'Graph returned an error: ' . $e->getMessage();
         exit;
-    } catch (\Facebook\Exceptions\FacebookSDKException $e) {
+    } catch(Facebook\Exceptions\FacebookSDKException $e) {
         // When validation fails or other local issues
         echo 'Facebook SDK returned an error: ' . $e->getMessage();
         exit;
     }
-    //dd($response->getDecodedBody()['metadata']['fields']);
-    foreach ($response->getDecodedBody()['metadata']['fields'] as $field) {
-       if(!isset($field['type'])) {
-          // dd($field);
-       }
-        $f = new \App\PageField();
-        $f->fill($field);
-        $f->save();
+
+    foreach ($responses as $key => $response) {
+        if ($response->isError()) {
+            $e = $response->getThrownException();
+            echo '<p>Error! Facebook SDK Said: ' . $e->getMessage() . "\n\n";
+            echo '<p>Graph Said: ' . "\n\n";
+            var_dump($e->getResponse());
+        } else {
+            $resp = $response->getDecodedBody();
+            $pages_data = $resp['data'];
+            $chunk_100_pages=[];
+            foreach (array_chunk($pages_data,100) as $pages_rows) {
+                $chunk_100_pages[] = [
+                    'pages_data_chunk'=>serialize($pages_rows),
+                    'chunk_size' => count($pages_rows)
+                ];
+                \DB::table('pages')->insert($chunk_100_pages);
+            }
+        }
     }
-    dd('ok');
+
+
+
+
+
 });

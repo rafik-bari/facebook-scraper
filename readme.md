@@ -19,5 +19,8 @@ and then migrate the databases and seed with demo access tokens and page fields:
  
     php artisan db:seed
     
+install supervisor:
+
+    sudo apt-get install supervisor
     
 Sign Up on the site and login to your account. 

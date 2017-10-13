@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePagesTable extends Migration
+class CreateApiErrorsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class CreatePagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('pages', function (Blueprint $table) {
+        Schema::create('api_errors', function (Blueprint $table) {
             $table->increments('id');
-            $table->binary('pages_data_chunk')->nullable();
-            $table->integer('chunk_size')->nullable();
+            $table->binary('e');
+            $table->binary('key');
+            $table->binary('response');
+            $table->text('message');
+            $table->integer('code');
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ class CreatePagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pages');
+        Schema::dropIfExists('api_errors');
     }
 }

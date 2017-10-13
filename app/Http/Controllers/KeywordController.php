@@ -2,30 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Page;
+use App\Jobs\ScrapePaginateKeyword;
+use App\Keyword;
 use Illuminate\Http\Request;
 
-class PageController extends Controller
+class KeywordController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-
-        $pages = Page::all();
-        $result = [
-            'ids' => $pages->pluck('id'),
-            'pages' => $pages
-        ];
-        return \Response::json($result);
+        //
     }
 
     /**
@@ -41,18 +31,26 @@ class PageController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
+        $keywords = $request->get('keywords');
+        foreach (array_chunk($keywords,5) as $keywords_chunk) {
+            $kw = new Keyword();
+            $kw->keywords_chunk = serialize($keywords_chunk);
+            if($kw->save()) {
+                // create a job to process this keyword
+                ScrapePaginateKeyword::dispatch($kw);
+            }
+        }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -63,7 +61,7 @@ class PageController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -74,8 +72,8 @@ class PageController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -86,7 +84,7 @@ class PageController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

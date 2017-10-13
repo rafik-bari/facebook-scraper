@@ -24,11 +24,17 @@
                           </textarea>
                                 <small style="text-decoration: none">Collected: <span id="processed">0</span></small>
 
-                                &nbsp;
-                                <small style="text-decoration: none">In Queue: <span id="queue">0</span></small>
 
                             </div>
 
+
+                            <br>
+
+
+                        </form>
+                        <textarea style="display: none;" id="pendingIds">
+
+                        </textarea>
                             <div class="input-group">
                                 <input disabled="" id="scrape" onclick="event.preventDefault()" type="submit"
                                        value="Scrape">
@@ -43,30 +49,6 @@
                                 <button onclick="myFacebookLogin();event.preventDefault()">Login with Facebook</button>
 
                             </div>
-                            <br>
-                            <div class="form-group">
-
-                                <label class="checkbox-inline" for="pid">
-                                    <input disabled checked type="checkbox" id="pid" value="id" name="fields[]">
-                                    id
-                                </label>
-
-
-                                <label class="checkbox-inline" for="pname">
-                                    <input c type="checkbox" id="pname" value="name" name="fields[]">
-                                    name
-                                </label>
-                                <label class="checkbox-inline" for="pfancount">
-                                    <input type="checkbox" id="pfancount" value="pfancount" name="fields[]">
-                                    fan/member count
-                                </label>
-                                <a style="text-decoration: none" href="#">&nbsp;&nbsp;more options</a>
-                            </div>
-
-                        </form>
-                        <textarea style="display: none;" id="pendingIds">
-
-                        </textarea>
 
                     </div>
                 </div>

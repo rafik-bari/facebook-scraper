@@ -15,7 +15,7 @@ class CreatePendingPagesTable extends Migration
     {
         Schema::create('pending_pages', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('page_id');
+            $table->string('page_id');
             $table->boolean('is_processed')->default(false);
             $table->timestamps();
         });

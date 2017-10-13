@@ -25,25 +25,25 @@ class PageFieldsTableSeeder extends Seeder
 
         $access_token = $app_id . '|' . $app_secret;
         try {
-            // Get the \Facebook\GraphNodes\GraphUser object for the current user.
-            // If you provided a 'default_access_token', the '{access-token}' is optional.
+
             $response = $fb->get('/1377316249228679?metadata=1', $access_token);
         } catch (\Facebook\Exceptions\FacebookResponseException $e) {
-            // When Graph returns an error
+
             echo 'Graph returned an error: ' . $e->getMessage();
             exit;
         } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            // When validation fails or other local issues
+
             echo 'Facebook SDK returned an error: ' . $e->getMessage();
             exit;
         }
         //dd($response->getDecodedBody()['metadata']['fields']);
         foreach ($response->getDecodedBody()['metadata']['fields'] as $field) {
-            if(!isset($field['type'])) {
-                // dd($field);
-            }
+
             $f = new \App\PageField();
             $f->fill($field);
+            if (isset($field['name']) && 'id' == $field['name']) { // set id field to enabled by default
+                $f->enabled = 1;
+            }
             $f->save();
         }
     }

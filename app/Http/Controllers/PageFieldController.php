@@ -2,30 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Page;
+use App\PageField;
 use Illuminate\Http\Request;
 
-class PageController extends Controller
+class PageFieldController extends Controller
 {
+
     public function __construct()
     {
         $this->middleware('auth');
     }
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-
-        $pages = Page::all();
-        $result = [
-            'ids' => $pages->pluck('id'),
-            'pages' => $pages
-        ];
-        return \Response::json($result);
+        //
     }
 
     /**
@@ -80,7 +74,11 @@ class PageController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        if ($request->ajax()) {
+            $field = PageField::findOrFail($id);
+            $field->fill($request->all());
+            $field->save();
+        }
     }
 
     /**
