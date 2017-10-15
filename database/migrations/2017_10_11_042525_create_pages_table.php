@@ -14,11 +14,11 @@ class CreatePagesTable extends Migration
     public function up()
     {
         Schema::create('pages', function (Blueprint $table) {
-            $table->increments('id');
-            $table->binary('pages_data_chunk')->nullable();
-            $table->integer('chunk_size')->nullable();
+            $table->increments('i');
             $table->timestamps();
         });
+
+
     }
 
     /**

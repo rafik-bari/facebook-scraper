@@ -11,6 +11,9 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Styles -->
+    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.bootstrap.min.css" rel="stylesheet">
+
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
@@ -83,10 +86,63 @@
 
 <!-- Scripts -->
 <script src="{{ asset('js/app.js') }}"></script>
+
 <script
         src="https://code.jquery.com/jquery-3.2.1.min.js"
         integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
+
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.0/js/responsive.bootstrap.min.js"></script>
+
+
+<script src="{{asset('js/stream_table.min.js')}}"></script>
+<script src="{{asset('js/mustache.min.js')}}"></script>
+
+
+@include('partials.mustache_table_template')
+
+<script>
+    var data = [];
+    var dummyPage = [];
+    dummyPage['id'] = '123';
+    dummyPage['name'] = 'test';
+    data.push(dummyPage);
+    var template = $.trim($("#template").html());
+    Mustache.parse(template);
+
+    var view = function (record, index) {
+        return Mustache.render(template, {record: record, index: index});
+    };
+    var json_url = '/page';
+    var cbs = {
+        before_add: function (data) {
+            var new_data = [];
+            if ('undefined' !== typeof (data.body)) {
+                new_data = data.body;
+            }
+
+            return new_data;
+        },
+        after_add: function () {
+            var spn = $('span#processed');
+            spn.text(parseInt(this.data.length));
+        }
+    };
+
+    var options = {
+        view: view,                  //View function to render table rows.
+        data_url: json_url,  //Data fetching url
+        stream_after: 30000000,             //Start streaming after 2 secs
+        fetch_data_limit: 1000,       //Streaming data in batch of 500
+        callbacks: cbs
+    };
+
+
+    var st = StreamTable('#stream_table', options, data);
+
+</script>
 <script src="{{asset('js/custom.js')}}"></script>
+
 </body>
 </html>

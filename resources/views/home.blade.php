@@ -3,7 +3,7 @@
 @section('content')
     <div class="container">
         <div class="row">
-            <div class="col-md-8 col-md-offset-2">
+            <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">Dashboard</div>
 
@@ -18,9 +18,9 @@
                             <div class="form-group">
                           <textarea id="keywords" style="width: 100%;min-height:130px " name="keywords"
                                     placeholder="Type some keywords ( One per line)">
-
-
-
+                          </textarea>
+                                <textarea id="log" style="width: 100%;min-height:130px " name="logs"
+                                          placeholder="">
                           </textarea>
                                 <small style="text-decoration: none">Collected: <span id="processed">0</span></small>
 
@@ -32,41 +32,40 @@
 
 
                         </form>
-                        <textarea style="display: none;" id="pendingIds">
 
-                        </textarea>
-                            <div class="input-group">
-                                <input disabled="" id="scrape" onclick="event.preventDefault()" type="submit"
-                                       value="Scrape">
-                                <script>
-                                    // Only works after `FB.init` is called
-                                    function myFacebookLogin() {
-                                        FB.login(function () {
-                                        }, {scope: 'public_profile'});
-                                    }
-                                </script>
-                                &nbsp;&nbsp;
-                                <button onclick="myFacebookLogin();event.preventDefault()">Login with Facebook</button>
+                        <div class="input-group">
+                            <input disabled="" id="scrape" onclick="event.preventDefault()" type="submit"
+                                   value="Scrape"> &nbsp;
+                            <input type="button" id="purge" onclick="event.preventDefault()"
+                                   value="Purge All Data">
+                            <input type="hidden" value="/page" id="nextPageUrl">
+                            <input type="hidden" value="/page" id="currentPageUrl">
 
-                            </div>
-
-                    </div>
-                </div>
-
-
-                <div class="panel panel-default">
-                    <div class="panel-heading">Results</div>
-
-                    <div class="panel-body">
-                        <div class="form-group">
-
-                        <textarea style="width:100%;min-height: 500px" id="results">
-
-                        </textarea>
                         </div>
 
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-12 ">
+                        <table id="stream_table" class='table table-responsive'>
+                            <thead>
+                            <tr>
+
+                                @if(isset($fields) && is_array($fields))
+                                    @foreach($fields as $field)
+                                        <th>{{$field}}</th>
+                                    @endforeach
+                                @endif
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                </div>
+
             </div>
         </div>
     </div>

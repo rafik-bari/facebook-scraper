@@ -37,9 +37,10 @@ class KeywordController extends Controller
     public function store(Request $request)
     {
         $keywords = $request->get('keywords');
-        foreach (array_chunk($keywords,5) as $keywords_chunk) {
+        foreach (array_chunk($keywords,49) as $keywords_chunk) {
+
             $kw = new Keyword();
-            $kw->keywords_chunk = serialize($keywords_chunk);
+            $kw->keywords_chunk = base64_encode(serialize($keywords_chunk));
             if($kw->save()) {
                 // create a job to process this keyword
                 ScrapePaginateKeyword::dispatch($kw);

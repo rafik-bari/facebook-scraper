@@ -1,5 +1,95 @@
+var editor; // use a global for the submit and return data rendering in the examples
+
+
 $(document).ready(function () {
 
+
+
+    //////// End datatables
+    var log = function (line) {
+        $('textarea#log').append(line + '\n');
+        return true;
+    };
+    var clearResults = function () {
+        $('textarea#results').val('');
+        $('input#nextPageUrl').val('/page');
+    };
+    $('input#purge').click(function () {
+        log('Purging all data.');
+        $.ajax({
+            url: '/purge',
+            method: 'GET',
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
+            },
+            beforeSend: function () {
+
+            },
+            success: function (response) {
+                if (true == response.status) {
+                    log('Data was successfully purged');
+                    clearResults();
+                }
+            },
+            onerror: function (err) {
+                if (err) {
+                    log('Error:' + err);
+                }
+            }
+        })
+    });
+    var spnProcessed = $('span#processed');
+    var updateTotalCounter = function (newlyAddedRowsCount) {
+        if (parseInt(spnProcessed.html()) !== newlyAddedRowsCount) {
+            spnProcessed.html(parseInt(newlyAddedRowsCount));
+        }
+
+    };
+
+
+    var renderResults = function () {
+
+        setTimeout(function () {
+            st.fetchData();
+            renderResults();
+           /* $.ajax({
+                url: $('input#nextPageUrl').val(),
+                method: 'GET',
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
+                },
+                beforeSend: function () {
+
+                },
+                success: function (response) {
+
+                    if (response.next_page_url) {
+                        $('input#nextPageUrl').val(response.next_page_url);
+                    }
+                    renderResults();
+
+
+                    if ($('input#currentPageUrl').val() != $('input#nextPageUrl').val()) {
+                        $('input#currentPageUrl').val($('input#nextPageUrl').val());
+                        updateTotalCounter(response.body);
+
+
+
+                    }
+                },
+                onerror: function (err) {
+                    if (err) {
+                        log('Error:' + err);
+                    }
+                }
+            })*/
+        }, 3000);
+
+    };
+
+      renderResults();
     $('#app').on('change', 'input.update-field-value', function () {
         var field_id = $(this).val();
         $.ajax({
@@ -28,53 +118,60 @@ $(document).ready(function () {
         }
     });
 
-    $.ajaxSetup({cache: false});
-    $.getScript('//connect.facebook.net/en_US/sdk.js', function () {
-        FB.init({
-            appId: '1083006501758342',
-            version: 'v2.7' // or v2.1, v2.2, v2.3, ...
-        });
-
-
-    });
-    // Execute some code here
-    var lines;
-
-    var collectedSpan = $('span#processed');
-
-    var textArrPendingIds = $('textarea#pendingIds');
-    var processNextPage = function (url) {
-        if ('undefined' !== typeof url) {
-            var n = 0;
-            var x = FB.api(url, 'get', {}, function (response) {
-                $.each(response.data, function () {
-                    n++;
-
-
-                    pushPendingIdsToQueue(this.id);
-                });
-                if ('undefined' !== typeof response.paging && 'undefined' !== typeof response.paging.next) {
-                    processNextPage(response.paging.next);
-                }
-
-            });
+    function getDateTime() {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = now.getMonth() + 1;
+        var day = now.getDate();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var second = now.getSeconds();
+        if (month.toString().length == 1) {
+            var month = '0' + month;
         }
-    };
+        if (day.toString().length == 1) {
+            var day = '0' + day;
+        }
+        if (hour.toString().length == 1) {
+            var hour = '0' + hour;
+        }
+        if (minute.toString().length == 1) {
+            var minute = '0' + minute;
+        }
+        if (second.toString().length == 1) {
+            var second = '0' + second;
+        }
+        var dateTime = year + '/' + month + '/' + day + ' ' + hour + ':' + minute + ':' + second;
+        return dateTime;
+    }
+
     $("input#scrape").click(function () {
+        var keywords = $('textarea#keywords').val().split('\n');
+        log('Scraping Started: ' + getDateTime());
         $.ajax({
             url: '/keyword',
             method: 'POST',
-            dataType:'json',
+            dataType: 'json',
             data: {
-                'keywords': $('textarea#keywords').val().split('\n')
+                'keywords': keywords
             },
             headers: {
                 'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
             },
+            beforeSend: function () {
+                log('Sending keywords to server');
+                $('input#scrape').prop('disabled', true);
+            },
             success: function (response) {
-                console.log(response);
+                $('input#scrape').prop('disabled', false);
+                log('Processing your keywords');
+            },
+            onerror: function (err) {
+                console.log(err);
+                log('Error:' + err);
             }
         })
         ;
     });
+
 });

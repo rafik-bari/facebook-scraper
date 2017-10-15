@@ -15,11 +15,11 @@ class CreateApiErrorsTable extends Migration
     {
         Schema::create('api_errors', function (Blueprint $table) {
             $table->increments('id');
-            $table->binary('e');
-            $table->binary('key');
-            $table->binary('response');
-            $table->text('message');
-            $table->integer('code');
+            $table->binary('e')->nullable();
+            $table->binary('key')->nullable();
+            $table->binary('response')->nullable();
+            $table->text('message')->nullable();
+            $table->integer('code')->nullable();
             $table->timestamps();
         });
     }
