@@ -35,12 +35,17 @@
 
                         <div class="input-group">
                             <input disabled="" id="scrape" onclick="event.preventDefault()" type="submit"
-                                   value="Scrape"> &nbsp;
-                            <input type="button" id="purge" onclick="event.preventDefault()"
-                                   value="Purge All Data">
+                                   value="Scrape">&nbsp;
+
+
+                                <input style="{{isset($has_pages) && $has_pages?'':'display:none;'}}" type="button" id="download" onclick="event.preventDefault()"
+                                       value="CSV">&nbsp;
+
+                            <input style="{{isset($has_purgable_data) && $has_purgable_data?'':'display:none;'}}color: red" type="button" id="purge" onclick="event.preventDefault()"
+                                   value="Purge All">
                             <input type="hidden" value="/page" id="nextPageUrl">
                             <input type="hidden" value="/page" id="currentPageUrl">
-
+                            <a style="display: none" id="hdn"></a>
                         </div>
 
                     </div>

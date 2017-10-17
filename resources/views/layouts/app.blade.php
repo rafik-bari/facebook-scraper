@@ -9,7 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" />
     <!-- Styles -->
     <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.2.0/css/responsive.bootstrap.min.css" rel="stylesheet">
@@ -50,7 +50,7 @@
                     <!-- Authentication Links -->
                     @guest
                         <li><a href="{{ route('login') }}">Login</a></li>
-                        <li><a href="{{ route('register') }}">Register</a></li>
+
                         @else
 
                             <li><a href="{{ route('settings.index') }}">Settings</a></li>
@@ -120,6 +120,7 @@
             var new_data = [];
             if ('undefined' !== typeof (data.body)) {
                 new_data = data.body;
+
             }
 
             return new_data;
@@ -127,13 +128,17 @@
         after_add: function () {
             var spn = $('span#processed');
             spn.text(parseInt(this.data.length));
+            if(this.data.length > 0) {
+                $('input#purge').show();
+                $('input#download').show();
+            }
         }
     };
 
     var options = {
         view: view,                  //View function to render table rows.
         data_url: json_url,  //Data fetching url
-        stream_after: 30000000,             //Start streaming after 2 secs
+        stream_after: 10000,             //Start streaming after 2 secs
         fetch_data_limit: 1000,       //Streaming data in batch of 500
         callbacks: cbs
     };

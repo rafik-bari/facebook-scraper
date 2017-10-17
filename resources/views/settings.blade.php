@@ -5,7 +5,40 @@
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
                 <div class="panel panel-default">
-                    <div class="panel-heading">Settings</div>
+                    <div class="panel-heading">
+                        <p style="font-family: Arial,Microsoft Sans Serif,sans-serif">
+                            Please sepecify the API key of your Facebook App.
+                        </p>
+
+                    </div>
+                    <div class="panel-body">
+                        @if (session('status'))
+                            <div class="alert alert-success">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+                        {{Form::model($appToken,['method'=>'put','route'=>['settings.update',$appToken->id]])}}
+                        <div class="form-group">
+                            {{Form::text('app_id',null,['class'=>'form-control'])}}
+                        </div>
+                        <div class="form-group">
+                            {{Form::text('app_secret',null,['class'=>'form-control'])}}
+                        </div>
+
+                        <div class="form-actions">
+                            <input class="btn btn-success" type="submit" value="Save Settings">
+                        </div>
+                        {{ Form::close()}}
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <p style="font-family: Arial,Microsoft Sans Serif,sans-serif">
+                            Please select the fields you want to collect.
+                        </p>
+
+                    </div>
 
                     <div class="panel-body">
                         @if (session('status'))

@@ -24,19 +24,15 @@ class PageController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $enabled_fields = [];
-            $enabled_fields_ = PageField::where('enabled', true)->pluck('name')->toArray();
-            $visible_fields = ['id', 'name'];
-            foreach ($enabled_fields_ as $fieldname) {
-                if (in_array($fieldname, $visible_fields)) {
-                    $enabled_fields[] = $fieldname;
-                }
-            }
+
+            $enabled_fields = PageField::where('enabled', true)->pluck('name')->toArray();
+
+
             $ids = [];
             $data = [];
 
-            if($request->get('offset')) {
-                $currentPage = ($request->get('offset')/1000) + 1;
+            if ($request->get('offset')) {
+                $currentPage = ($request->get('offset') / 1000) + 1;
             } else {
                 $currentPage = 1;
             }
@@ -59,6 +55,47 @@ class PageController extends Controller
                         switch ($field) {
                             case 'link':
                                 $fieldValue = '<a href="' . $page->$field . '">visit url</a>';
+                                continue;
+                            case 'engagement':
+                                $fieldValue = isset($page->$field) ? unserialize($page->$field)['count'] : '';
+                                continue;
+                            case 'emails':
+                                if (isset($page->$field)) {
+
+                                    $fieldValue = '<ul style="list-style: none">';
+                                    foreach (unserialize($page->$field) as $email) {
+                                        $fieldValue .= "<li>$email</li>";
+                                    }
+                                    $fieldValue .= '</ul>';
+                                } else {
+                                    $fieldValue = '<a style="color: red">Unavailable</a>';
+                                }
+
+                                continue;
+                            case 'app_links':
+
+                                if ($page->$field && count(unserialize($page->$field))) {
+                                    $fieldValue = '<ul style="list-style: none">';
+                                    foreach (unserialize($page->$field) as $mobile_os => $app_data) {
+
+                                        if (isset($app_data) && is_array($app_data)) {
+
+
+                                            $fieldValue .= "<li><b>$mobile_os:</b></li>";
+                                            foreach ($app_data[0] as $k => $v) {
+                                                if (in_array($k, ['package', 'url'])) {
+                                                    if ('package' == $k) $v = "<a href='$v'>package link</a>";
+                                                    if ('url' == $k) $v = "<a href='$v'>app url</a>";
+                                                    $fieldValue .= "<li>$v</li>";
+                                                } else
+                                                    $fieldValue .= "<li>$k: $v</li>";
+                                            }
+                                        }
+                                    }
+                                    $fieldValue .= '</ul>';
+                                }
+
+
                                 continue;
                             default:
                                 $fieldValue = $page->$field;

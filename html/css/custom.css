@@ -1,7 +1,10 @@
 .table {
     border: none;
 }
-
+td > * {
+    margin-left: 1px!important;
+    padding-left: 1px!important;
+}
 .table-definition thead th:first-child {
     pointer-events: none;
     background: white;
@@ -10,6 +13,9 @@
 
 .table td {
     vertical-align: middle;
+}
+.table td ul{
+   list-style: none;
 }
 
 .page-item > * {

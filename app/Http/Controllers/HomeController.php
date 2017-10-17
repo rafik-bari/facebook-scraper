@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Keyword;
 use App\Page;
 use App\PageField;
 use Illuminate\Http\Request;
@@ -28,15 +29,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $fields = [];
-        $enabled_fields_ = PageField::where('enabled', true)->pluck('name')->toArray();
-        $visible_fields = ['id', 'name'];
-        foreach ($enabled_fields_ as $fieldname) {
-            if (in_array($fieldname, $visible_fields)) {
-                $fields[] = $fieldname;
-            }
-        }
-        return view('home',compact('fields'));
+
+        $fields = PageField::where('enabled', true)->pluck('name')->toArray();
+        $has_pages = Page::count() > 0;
+        $has_purgable_data = $has_pages > 0 || Keyword::count() > 0;
+
+        return view('home', compact('fields', 'has_purgable_data', 'has_pages'));
     }
 
     public function getArrayOfKeys()
@@ -80,72 +78,43 @@ class HomeController extends Controller
         return $return;
     }
 
+    private $blob_fields = ['emails', 'start_info', 'engagement', 'voip_info', 'app_links', 'location'];
+
+    public function shouldSerialize($field_name)
+    {
+        return in_array($field_name, $this->blob_fields);
+    }
+
     public function csvData()
     {
-        $all = [];
-        $pages = Page::all();
-        $allowedKeys = $this->getArrayOfKeys();
-        foreach ($pages as $row) {
-            $_hundred_pages = unserialize($row->pages_data_chunk);
-            foreach ($_hundred_pages as $page) {
-                $readySinglePageData = $page;
-                foreach ($allowedKeys as $k) {
-                    if(!isset($readySinglePageData[$k])) {
-                        $readySinglePageData[$k] = null;
-                    }
-                    $readySinglePageData[$k] = serialize($readySinglePageData[$k]);
-                }
-                $all[] = $readySinglePageData;
-            }
-
-        }
-        dd($all);
-        $headers = array(
-            'Content-Type' => 'text/csv',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Content-Disposition' => 'attachment; filename=Pages.csv',
-            'Expires' => '0',
-            'Pragma' => 'public',
-        );
-
-        $response = new StreamedResponse(function () {
-            $allowedKeys = $this->getArrayOfKeys();
-            // Open output stream
-            $handle = fopen('php://output', 'w');
-
-            // Add CSV headers
-            fputcsv($handle, $allowedKeys);
-            $res = [];
-
-            $rows = Page::all();
-            foreach ($rows as $row) {
-
-                // Add a new row with data
-                foreach (unserialize($row->pages_data_chunk) as $pageD) {
-                    if (!in_array($pageD['id'], $res)) {
-                        $res[] = $pageD['id'];
-                        foreach ($allowedKeys as $k) {
-                            if (isset($pageD[$k]) && is_array($pageD[$k])) {
-                                $pageD[$k] = implode('/', $this->flatten($pageD[$k]));
-                                exit;
-                            }
 
 
+        $header = \App\PageField::where('enabled', true)->get(['name'])->implode('name', ',');
+        $enabled_fields = PageField::where('enabled', true)->pluck('name')->toArray();
+
+        $csvData = [];
+        $pages = Page::get($enabled_fields);
+
+
+        Excel::create('Filename', function ($excel) {
+            $excel->sheet('Sheetname', function ($sheet) {
+                $enabled_fields = PageField::where('enabled', true)->pluck('name')->toArray();
+                $pages = Page::get($enabled_fields);
+                $csvData = [];
+                foreach ($pages as $page) {
+                    $csv_row = [];
+                    foreach ($page->toArray() as $key => $value) {
+                        if ($value && $this->shouldSerialize($key)) {
+                            $csv_row[$key] = implode(',          ', unserialize($value));
+                        } else {
+                            $csv_row[$key] = $value;
                         }
-                        //   fputcsv($handle, array_values($this->filterNonExistingKeys($pageD, $allowedKeys)));
-
-
-                    };
-
+                    }
+                    $csvData[] = $csv_row;
                 }
-
-            }
-            // Close the output stream
-            fclose($handle);
-
-        }, 200, $headers);
-
-        return $response->send();
+                $sheet->fromArray($csvData);
+            });
+        })->download('xls');
 
 
     }

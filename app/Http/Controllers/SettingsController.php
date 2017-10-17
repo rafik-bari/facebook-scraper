@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AppToken;
 use App\PageField;
 use Illuminate\Http\Request;
 
@@ -11,6 +12,7 @@ class SettingsController extends Controller
     {
         $this->middleware('auth');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -19,7 +21,13 @@ class SettingsController extends Controller
     public function index()
     {
         $fields = PageField::all();
-        return view('settings', compact('fields'));
+        $appToken = AppToken::findOrFail(1);
+        if (!$appToken) {
+            $appToken = new AppToken();
+            $appToken->save();
+        }
+
+        return view('settings', compact('fields', 'appToken'));
     }
 
     /**
@@ -75,6 +83,10 @@ class SettingsController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $appToken = AppToken::findOrFail($id);
+        $appToken->fill($request->all());
+        $appToken->save();
+        return \Redirect::back();
     }
 
     /**

@@ -48,48 +48,48 @@ $(document).ready(function () {
     };
 
 
-    var renderResults = function () {
+    var renderResults = function (timeOut) {
 
         setTimeout(function () {
             st.fetchData();
-            renderResults();
-           /* $.ajax({
-                url: $('input#nextPageUrl').val(),
-                method: 'GET',
-                dataType: 'json',
-                headers: {
-                    'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
-                },
-                beforeSend: function () {
+            renderResults(10000);
+            /* $.ajax({
+                 url: $('input#nextPageUrl').val(),
+                 method: 'GET',
+                 dataType: 'json',
+                 headers: {
+                     'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
+                 },
+                 beforeSend: function () {
 
-                },
-                success: function (response) {
+                 },
+                 success: function (response) {
 
-                    if (response.next_page_url) {
-                        $('input#nextPageUrl').val(response.next_page_url);
-                    }
-                    renderResults();
-
-
-                    if ($('input#currentPageUrl').val() != $('input#nextPageUrl').val()) {
-                        $('input#currentPageUrl').val($('input#nextPageUrl').val());
-                        updateTotalCounter(response.body);
+                     if (response.next_page_url) {
+                         $('input#nextPageUrl').val(response.next_page_url);
+                     }
+                     renderResults();
 
 
+                     if ($('input#currentPageUrl').val() != $('input#nextPageUrl').val()) {
+                         $('input#currentPageUrl').val($('input#nextPageUrl').val());
+                         updateTotalCounter(response.body);
 
-                    }
-                },
-                onerror: function (err) {
-                    if (err) {
-                        log('Error:' + err);
-                    }
-                }
-            })*/
-        }, 3000);
+
+
+                     }
+                 },
+                 onerror: function (err) {
+                     if (err) {
+                         log('Error:' + err);
+                     }
+                 }
+             })*/
+        }, timeOut);
 
     };
 
-      renderResults();
+    renderResults(0);
     $('#app').on('change', 'input.update-field-value', function () {
         var field_id = $(this).val();
         $.ajax({
@@ -145,6 +145,11 @@ $(document).ready(function () {
         return dateTime;
     }
 
+    $("input#download").click(function () {
+        window.open('/csv', '_blank');
+
+        // window.location = '/csv';
+    });
     $("input#scrape").click(function () {
         var keywords = $('textarea#keywords').val().split('\n');
         log('Scraping Started: ' + getDateTime());
@@ -160,7 +165,7 @@ $(document).ready(function () {
             },
             beforeSend: function () {
                 log('Sending keywords to server');
-                $('input#scrape').prop('disabled', true);
+
             },
             success: function (response) {
                 $('input#scrape').prop('disabled', false);

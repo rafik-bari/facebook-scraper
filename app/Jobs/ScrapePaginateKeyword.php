@@ -36,8 +36,9 @@ class ScrapePaginateKeyword implements ShouldQueue
     public function handle()
     {
         // require_once __DIR__ . '/vendor/autoload.php'; // change path as needed
-        $app_id = '1083006501758342';
-        $app_secret = '73c47ebeba31ae98dc00dd7d152f2a86';
+        $appToken = \App\AppToken::first();
+        $app_id = $appToken->app_id;
+        $app_secret = $appToken->app_secret;
         $fb = new \Facebook\Facebook([
             'app_id' => $app_id,
             'app_secret' => $app_secret,
