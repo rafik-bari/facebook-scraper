@@ -107,7 +107,30 @@ $(document).ready(function () {
         })
         ;
     });
+    $('#app').on('change keyup mouseup', '.form2Component', function () {
 
+        log('Scraping Started: ' + getDateTime());
+        $.ajax({
+            url: $('form.form2').attr('action'),
+            method: 'PUT',
+            dataType: 'json',
+            data: $('.form2Component').serialize(),
+            headers: {
+                'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
+            },
+            beforeSend: function () {
+
+
+            },
+            success: function (response) {
+
+            },
+            onerror: function (err) {
+
+            }
+        })
+        ;
+    });
 
     $('textarea#keywords').keyup(function () {
 

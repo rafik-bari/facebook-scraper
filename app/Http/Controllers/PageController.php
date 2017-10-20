@@ -54,7 +54,8 @@ class PageController extends Controller
 
                         switch ($field) {
                             case 'link':
-                                $fieldValue = '<a href="' . $page->$field . '">visit url</a>';
+                                $fieldValue = '<a target="_blank" href="' . $page->$field . '">
+<i class="fa fa-link" aria-hidden="true"></i></a>';
                                 continue;
                             case 'engagement':
                                 $fieldValue = isset($page->$field) ? unserialize($page->$field)['count'] : '';
@@ -110,7 +111,7 @@ class PageController extends Controller
 
             $response = [
                 'status' => true,
-                'count' => count($data),
+                'count' => Page::count(),
                 'total' => Page::count(),
                 'body' => $data,
                 'next_page_url' => $rows->nextPageUrl()

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSettingsTable extends Migration
+class CreateScrapedKeywordsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class CreateSettingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('settings', function (Blueprint $table) {
-            $table->integer('id')->default(1);
-            $table->binary('fields')->nullable();
-            $table->boolean('must_have_email')->default(false);
-            $table->integer('minimum_fan_count')->default(100);
+        Schema::create('scraped_keywords', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('value');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ class CreateSettingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('settings');
+        Schema::dropIfExists('scraped_keywords');
     }
 }

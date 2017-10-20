@@ -2,19 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\ApiError;
 use App\AppToken;
-use App\PageField;
-use App\Settings;
 use Illuminate\Http\Request;
 
-class SettingsController extends Controller
+class AppTokensController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -22,17 +14,8 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        $fields = PageField::all();
-        $appToken = AppToken::findOrFail(1);
-        $settingsRow = Settings::findOrFail(1);
-        if (!$appToken) {
-            $appToken = new AppToken();
-            $appToken->save();
-        }
-
-        $api_errors = ApiError::all();
-
-        return view('settings', compact('fields', 'appToken','settingsRow','api_errors'));
+        //
+        $this->middleware('auth');
     }
 
     /**
@@ -48,7 +31,7 @@ class SettingsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -59,18 +42,18 @@ class SettingsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -81,23 +64,23 @@ class SettingsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         //
-        $settingsRow = Settings::findOrFail(1);
-        $settingsRow->fill($request->all());
-        $settingsRow->must_have_email = (bool) ('on' === $request->get('must_have_email'));
-        $settingsRow->save();
+        $appToken = AppToken::findOrFail($id);
+        $appToken->fill($request->all());
+        $appToken->save();
+        return \Redirect::back();
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

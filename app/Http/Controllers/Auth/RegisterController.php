@@ -37,7 +37,7 @@ class RegisterController extends Controller
     public function __construct()
     {
 
-        exit('Nothing serious to look at in this section.');
+
         $this->middleware('guest');
     }
 
@@ -64,6 +64,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        exit('Nothing serious to look at in this section.');
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],

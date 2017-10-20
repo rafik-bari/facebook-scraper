@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
+    <div class="container-full">
+        <div class="container">
+            <div class="row">
                 <div class="panel panel-default">
                     <div class="panel-heading">Dashboard</div>
 
@@ -17,11 +17,8 @@
                         <form method="post" action="" novalidate>
                             <div class="form-group">
                           <textarea id="keywords" style="width: 100%;min-height:130px " name="keywords"
-                                    placeholder="Type some keywords ( One per line)">
-                          </textarea>
-                                <textarea id="log" style="width: 100%;min-height:130px " name="logs"
-                                          placeholder="">
-                          </textarea>
+                                    placeholder="Type some keywords ( One per line)">@foreach($scrapedKeywords as $keyword){{$keyword->value}}&#13;&#10;@endforeach</textarea>
+
                                 <small style="text-decoration: none">Collected: <span id="processed">0</span></small>
 
 
@@ -38,10 +35,12 @@
                                    value="Scrape">&nbsp;
 
 
-                                <input style="{{isset($has_pages) && $has_pages?'':'display:none;'}}" type="button" id="download" onclick="event.preventDefault()"
-                                       value="CSV">&nbsp;
+                            <input style="{{isset($has_pages) && $has_pages?'':'display:none;'}}" type="button"
+                                   id="download" onclick="event.preventDefault()"
+                                   value="CSV">&nbsp;
 
-                            <input style="{{isset($has_purgable_data) && $has_purgable_data?'':'display:none;'}}color: red" type="button" id="purge" onclick="event.preventDefault()"
+                            <input style="{{isset($has_purgable_data) && $has_purgable_data?'':'display:none;'}}color: red"
+                                   type="button" id="purge" onclick="event.preventDefault()"
                                    value="Purge All">
                             <input type="hidden" value="/page" id="nextPageUrl">
                             <input type="hidden" value="/page" id="currentPageUrl">
@@ -50,29 +49,34 @@
 
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12 ">
-                        <table id="stream_table" class='table table-responsive'>
-                            <thead>
-                            <tr>
-
-                                @if(isset($fields) && is_array($fields))
-                                    @foreach($fields as $field)
-                                        <th>{{$field}}</th>
-                                    @endforeach
-                                @endif
-                            </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-
-
-                </div>
-
             </div>
+
+
         </div>
+        <div class="row">
+
+            <div class="col-md-12">
+                <div style="display: none" id="resultsTableCont" class="table-responsive">
+                    <table id="stream_table" class='table'>
+                        <thead>
+
+                        <tr>
+                            @if(isset($fields) && is_array($fields))
+                                @foreach($fields as $field)
+                                    <th style="cursor: pointer" data-sort="{{$field}}:desc">{{$field}} </th>
+                                @endforeach
+                            @endif
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+
     </div>
 
 @endsection

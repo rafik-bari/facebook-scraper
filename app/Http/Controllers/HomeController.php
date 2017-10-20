@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\CompletedKeyword;
 use App\Keyword;
 use App\Page;
 use App\PageField;
+use App\ScrapedKeyword;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -33,8 +35,9 @@ class HomeController extends Controller
         $fields = PageField::where('enabled', true)->pluck('name')->toArray();
         $has_pages = Page::count() > 0;
         $has_purgable_data = $has_pages > 0 || Keyword::count() > 0;
+        $scrapedKeywords = ScrapedKeyword::all();
 
-        return view('home', compact('fields', 'has_purgable_data', 'has_pages'));
+        return view('home', compact('fields', 'has_purgable_data', 'has_pages','scrapedKeywords'));
     }
 
     public function getArrayOfKeys()
