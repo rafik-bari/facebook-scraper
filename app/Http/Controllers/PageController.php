@@ -32,7 +32,7 @@ class PageController extends Controller
             $data = [];
 
             if ($request->get('offset')) {
-                $currentPage = ($request->get('offset') / 1000) + 1;
+                $currentPage = ($request->get('offset') / 300) + 1;
             } else {
                 $currentPage = 1;
             }
@@ -43,7 +43,7 @@ class PageController extends Controller
             Paginator::currentPageResolver(function () use ($currentPage) {
                 return $currentPage;
             });
-            $rows = Page::paginate(1000);
+            $rows = Page::paginate(300);
 
             foreach ($rows as $page) {
 

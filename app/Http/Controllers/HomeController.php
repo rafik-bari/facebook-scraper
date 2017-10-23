@@ -7,6 +7,7 @@ use App\Keyword;
 use App\Page;
 use App\PageField;
 use App\ScrapedKeyword;
+use App\Settings;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -36,8 +37,14 @@ class HomeController extends Controller
         $has_pages = Page::count() > 0;
         $has_purgable_data = $has_pages > 0 || Keyword::count() > 0;
         $scrapedKeywords = ScrapedKeyword::all();
+        $in_progress = (0 < \DB::table('jobs')->select('*')->get()->count()) && 0 < \App\Page::count();
+        if ($in_progress) {
+            $body = 1; // search in progress
+        }
+        $last_scrape_completed = (true === (bool)Settings::find(1)->last_scrape_completed);
 
-        return view('home', compact('fields', 'has_purgable_data', 'has_pages','scrapedKeywords'));
+        return view('home', compact('fields', 'has_purgable_data', 'has_pages',
+            'last_scrape_completed', 'in_progress', 'scrapedKeywords'));
     }
 
     public function getArrayOfKeys()

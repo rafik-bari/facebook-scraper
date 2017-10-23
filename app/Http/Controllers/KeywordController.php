@@ -44,16 +44,7 @@ class KeywordController extends Controller
             $kw->keywords_chunk = base64_encode(serialize($keywords_chunk));
 
             if ($kw->save()) {
-                // create a job to process this keyword
-                foreach ($keywords_chunk as $k) {
-                    $kk = ScrapedKeyword::where('value', $k);
-                    if (!$kk->exists()) {
-                        $scrapedKeyword = new \App\ScrapedKeyword();
-                        $scrapedKeyword->value = $k;
-                        $scrapedKeyword->save();
-                    }
 
-                }
                 ScrapePaginateKeyword::dispatch($kw);
             }
         }

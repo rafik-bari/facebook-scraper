@@ -17,6 +17,7 @@ class CreateSettingsTable extends Migration
             $table->integer('id')->default(1);
             $table->binary('fields')->nullable();
             $table->boolean('must_have_email')->default(false);
+            $table->boolean('last_scrape_completed')->default(false);
             $table->integer('minimum_fan_count')->default(100);
             $table->timestamps();
         });

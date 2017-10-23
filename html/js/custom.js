@@ -28,8 +28,7 @@ $(document).ready(function () {
             },
             success: function (response) {
                 if (true == response.status) {
-                    log('Data was successfully purged');
-                    clearResults();
+                    window.location.reload();
                 }
             },
             onerror: function (err) {
@@ -39,10 +38,14 @@ $(document).ready(function () {
             }
         })
     });
-    var spnProcessed = $('span#processed');
+    var n, spnProcessed = $('span#processed');
     var updateTotalCounter = function (newlyAddedRowsCount) {
         if (parseInt(spnProcessed.html()) !== newlyAddedRowsCount) {
-            spnProcessed.html(parseInt(newlyAddedRowsCount));
+            n = parseInt(newlyAddedRowsCount);
+            if ('NaN' != spnProcessed) {
+                spnProcessed.html(n);
+            }
+
         }
 
     };
@@ -90,6 +93,25 @@ $(document).ready(function () {
     };
 
     renderResults(0);
+
+    var sendAjax = function (url, callback, method, data) {
+        data = data || {};
+        method = method || 'GET';
+        $.ajax({
+            url: url,
+            method: method,
+            data: data,
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
+            },
+            success: function (response) {
+                callback(response);
+            }
+        })
+    };
+
+
     $('#app').on('change', 'input.update-field-value', function () {
         var field_id = $(this).val();
         $.ajax({
@@ -107,9 +129,68 @@ $(document).ready(function () {
         })
         ;
     });
+    var loadingDiv = $('#loadingDiv');
+    var successDiv = $('#scrapeCompleteDiv');
+    var actionButtons = $('.actionsDiv');
+    var i0 = 0, i1 = 0, i2 = 0;
+    setInterval(function () {
+        $.ajax({
+            url: '/check_status',
+            method: 'GET',
+            data: {},
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
+            },
+            success: function (response) {
+                if (true === response.status) {
+                    switch (response.body) {
+                        case 0: // no search yet
+                            i2 = 0;
+                            i0++;
+                            if (i0 >= 3) {
+                                loadingDiv.hide();
+                                successDiv.hide();
+                                actionButtons.show();
+                            }
+
+                            break;
+                        case 1: // search progress
+                            i2 = 0;
+                            i1++;
+                            if (i1 >= 3) {
+
+                                actionButtons.hide();
+                                successDiv.hide();
+                                loadingDiv.show();
+                            }
+
+                            break;
+                        case 2: // search completed
+                            i2++;
+                            if (i2 >= 3) {
+                                sendAjax('/set_last_scrape_completed',function (response) {
+                                    // do nothing
+                                });
+
+                                loadingDiv.hide();
+                                actionButtons.hide();
+                                successDiv.show();
+                            }
+
+                            break;
+
+                    }
+                }
+
+            }
+        })
+        ;
+    }, 2500);
+
     $('#app').on('change keyup mouseup', '.form2Component', function () {
 
-        log('Scraping Started: ' + getDateTime());
+
         $.ajax({
             url: $('form.form2').attr('action'),
             method: 'PUT',
@@ -134,11 +215,6 @@ $(document).ready(function () {
 
     $('textarea#keywords').keyup(function () {
 
-        if ($(this).val().trim().length > 0) {
-            $('input#scrape').prop('disabled', false);
-        } else {
-            $('input#scrape').prop('disabled', true);
-        }
     });
 
     function getDateTime() {
@@ -174,8 +250,10 @@ $(document).ready(function () {
         // window.location = '/csv';
     });
     $("input#scrape").click(function () {
+        $('.actionsDiv').hide();
+        $('#loadingDiv').show();
         var keywords = $('textarea#keywords').val().split('\n');
-        log('Scraping Started: ' + getDateTime());
+
         $.ajax({
             url: '/keyword',
             method: 'POST',
@@ -187,16 +265,17 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': $("meta[name='csrf-token']").attr('content')
             },
             beforeSend: function () {
-                log('Sending keywords to server');
+                $('.actionsDiv').hide();
+                $('#loadingDiv').show();
 
             },
             success: function (response) {
-                $('input#scrape').prop('disabled', false);
                 log('Processing your keywords');
             },
             onerror: function (err) {
-                console.log(err);
-                log('Error:' + err);
+                $('#loadingDiv').hide();
+                $('.actionsDiv').show();
+
             }
         })
         ;

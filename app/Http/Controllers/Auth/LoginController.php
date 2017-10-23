@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Settings;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -26,6 +28,21 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = '/home';
+
+    public function authenticated()
+    {
+        $t1 = \App\Page::truncate();
+        $t2 = \App\Keyword::truncate();
+        $t3 = \App\ApiError::truncate();
+        $t4 = \App\ScrapedKeyword::truncate();
+        $settingsRow = Settings::find(1);
+        $settingsRow->last_scrape_completed = false;
+        if ($settingsRow->save()) {
+            return redirect()->intended('/home');
+        }
+
+    }
+
 
     /**
      * Create a new controller instance.
